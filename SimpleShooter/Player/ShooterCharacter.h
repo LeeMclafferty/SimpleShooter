@@ -58,9 +58,11 @@ private:
 
 	void Shoot();
 
+	//Health
 	UPROPERTY(EditDefaultsOnly)
 	float MaxHp;
-
 	UPROPERTY(VisibleAnywhere)
 	float CurrentHp;
+
+	void HandleDeath();
 };
