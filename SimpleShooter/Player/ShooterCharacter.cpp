@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "Components/CapsuleComponent.h"
 
 #include "SimpleShooter/Actors/Gun.h"
 
@@ -125,5 +126,6 @@ void AShooterCharacter::Shoot()
 void AShooterCharacter::HandleDeath()
 {
 	IsDead = true;
+	//GetCapsuleComponent()->SetCollisionProfileName("OverlapAll");
 }
 

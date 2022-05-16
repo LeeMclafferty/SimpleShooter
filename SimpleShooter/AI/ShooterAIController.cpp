@@ -15,3 +15,29 @@ void AShooterAIController::BeginPlay()
 	}
 }
 
+void AShooterAIController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Doing this in Tick is probably not the best way.
+	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	/* You do not have to pass in a nav mesh because in the BP created from this class there is a component called 
+	Path Following Component that does it for you.*/
+	if (PlayerPawn)
+	{
+		MoveToActor(PlayerPawn, 200.f);
+
+		if (LineOfSightTo(PlayerPawn))
+		{
+			SetFocus(PlayerPawn);
+			MoveToActor(PlayerPawn, AcceptanceRadius);
+		}
+		else
+		{
+			ClearFocus(EAIFocusPriority::Gameplay);
+			StopMovement();
+		}
+	}
+}
+
+
