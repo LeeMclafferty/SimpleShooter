@@ -23,6 +23,14 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	void Shoot();
+
+	UFUNCTION(BlueprintPure)
+	bool GetIsDead() const { return IsDead; }
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentHealthPercentage() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,8 +63,6 @@ private:
 
 	UPROPERTY()
 	class AGun* Gun;
-
-	void Shoot();
 
 	//Health
 	UPROPERTY(EditDefaultsOnly)

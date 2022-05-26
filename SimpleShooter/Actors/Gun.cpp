@@ -35,6 +35,29 @@ void AGun::BeginPlay()
 	
 }
 
+bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
+{
+	auto GunOwner = Cast<APawn>(GetOwner());
+	AController* PlayerController = GunOwner->GetController();
+
+	if (GunOwner && PlayerController)
+	{
+		FVector StartLocation;
+		FRotator Rotation;
+		// This function uses "Out parameters". This means the vars that are being passed in are being set to a value.
+		PlayerController->GetPlayerViewPoint(StartLocation, Rotation);
+		FVector EndLocation = StartLocation + Rotation.Vector() * GunRange;
+		ShotDirection = -Rotation.Vector();
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		Params.AddIgnoredActor(GetOwner());
+		return GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_GameTraceChannel1, Params);
+	}
+
+	return false;
+}
+
 // Called every frame
 void AGun::Tick(float DeltaTime)
 {
@@ -46,27 +69,21 @@ void AGun::PullTrigger()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Shoot"));
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMesh, TEXT("MuzzleFlashSocket"));
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound, GunMesh, TEXT("MuzzleFlashSocket"));
+
+	FHitResult Hit;
+	FVector ShotDirection;
+	bool HasHit = GunTrace(Hit, ShotDirection);
 
 	//You can cast to Pawn since AShooterCharacter is a child down the hierarchy
 	if (auto GunOwner = Cast<APawn>(GetOwner()))
 	{
 		if (AController* PlayerController = GunOwner->GetController())
 		{
-			FVector StartLocation;
-			FRotator Rotation;
-			// This function uses "Out parameters". This means the vars that are being passed in are being set to a value.
-			PlayerController->GetPlayerViewPoint(StartLocation, Rotation);
-			FVector EndLocation = StartLocation + Rotation.Vector() * GunRange;
-
-			FHitResult Hit;
-			FCollisionQueryParams Params;
-
-			bool HasHit = GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_GameTraceChannel1, Params);
-			
 			if (HasHit && HitVfx)
 			{
-				FVector ShotDirection = -Rotation.Vector();
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitVfx, Hit.Location, ShotDirection.Rotation());
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSfx, Hit.Location, ShotDirection.Rotation(), .2f);
 				if (Hit.GetActor())
 				{
 					FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr); // Constructor

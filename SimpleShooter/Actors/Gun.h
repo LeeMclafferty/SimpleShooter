@@ -42,5 +42,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	float Damage = 10;
 
+	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* MuzzleSound;
+
+	UPROPERTY(EditAnywhere, Category = "SFX")
+	class USoundBase* ImpactSfx;
 
 };

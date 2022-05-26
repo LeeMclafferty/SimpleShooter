@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "SimpleShooter/Actors/Gun.h"
+#include "SimpleShooter/SimpleShooterGameModeBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -123,9 +124,23 @@ void AShooterCharacter::Shoot()
 	Gun->PullTrigger();
 }
 
+
+float AShooterCharacter::GetCurrentHealthPercentage() const
+{
+	return CurrentHp / MaxHp;
+}
+
 void AShooterCharacter::HandleDeath()
 {
+	ASimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameModeBase>();
+	if (GameMode)
+	{
+		GameMode->PawnKilled(this);
+	}
+
+	DetachFromControllerPendingDestroy();
 	IsDead = true;
-	//GetCapsuleComponent()->SetCollisionProfileName("OverlapAll");
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
